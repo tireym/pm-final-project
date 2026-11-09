@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Future state journey: proving the card's value to large merchants</title>
+<style>
+  :root {
+    --paper: #f6f8f7;
+    --surface: #ffffff;
+    --ink: #14221e;
+    --muted: #526560;
+    --line: #cfdad6;
+    --stage: #0f6e56;
+    --stage-tint: #e3f2ed;
+    --pain: #9a3f27;
+    --pain-tint: #fbece7;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --paper: #0f1815;
+      --surface: #16231f;
+      --ink: #e8f0ed;
+      --muted: #9db2ab;
+      --line: #2c423b;
+      --stage: #5dcaa5;
+      --stage-tint: #1b3a31;
+      --pain: #f0997b;
+      --pain-tint: #3a211a;
+      color-scheme: dark;
+    }
+  }
+  * { box-sizing: border-box; }
+  html { background: var(--paper); }
+  body {
+    margin: 0;
+    padding: 28px 24px 32px;
+    color: var(--ink);
+    background: var(--paper);
+    font-family: "Avenir Next", "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+  main { max-width: 1160px; margin: 0 auto; }
+  h1 { font-size: 24px; line-height: 1.2; font-weight: 600; margin: 0 0 6px; letter-spacing: -0.01em; }
+  h2 { font-size: 15px; font-weight: 600; margin: 0 0 10px; }
+  .lede { margin: 0 0 18px; color: var(--muted); max-width: 78ch; }
+  .brief {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    background: var(--surface);
+    margin-bottom: 24px;
+  }
+  .brief div { padding: 12px 16px; }
+  .brief div + div { border-left: 1px solid var(--line); }
+  .brief dt { font-weight: 600; font-size: 13px; margin: 0 0 3px; }
+  .brief dd { margin: 0; color: var(--muted); font-size: 13px; }
+
+  ol.timeline {
+    list-style: none;
+    margin: 0 0 26px;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    counter-reset: stage;
+    position: relative;
+  }
+  ol.timeline::before {
+    content: "";
+    position: absolute;
+    top: 17px;
+    left: 18px;
+    right: 18px;
+    height: 2px;
+    background: var(--stage);
+    opacity: 0.45;
+  }
+  ol.timeline > li {
+    counter-increment: stage;
+    position: relative;
+    padding-top: 0;
+  }
+  .badge {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+  .badge::before {
+    content: counter(stage);
+    flex: none;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--stage);
+    color: var(--paper);
+    font-weight: 600;
+    display: grid;
+    place-items: center;
+    box-shadow: 0 0 0 5px var(--paper);
+  }
+  .badge span {
+    font-size: 17px;
+    font-weight: 600;
+    background: var(--paper);
+    padding: 0 8px 0 2px;
+    position: relative;
+  }
+  .card {
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    background: var(--surface);
+    overflow: hidden;
+    height: calc(100% - 48px);
+  }
+  .row { padding: 11px 13px 12px; }
+  .row + .row { border-top: 1px solid var(--line); }
+  .row h3 { margin: 0 0 4px; font-size: 12px; font-weight: 600; color: var(--muted); }
+  .row p { margin: 0; font-size: 13.5px; line-height: 1.45; }
+  .row .arr { color: var(--stage); font-weight: 600; margin: 0 2px; }
+  .row.pain { background: var(--pain-tint); }
+  .row.pain h3 { color: var(--pain); }
+  .row.pain .arr { color: var(--pain); }
+  .row.state { background: var(--stage-tint); }
+
+  .adv {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    margin-bottom: 18px;
+  }
+  .adv ol { display: contents; list-style: none; margin: 0; padding: 0; counter-reset: adv; }
+  .adv li {
+    counter-increment: adv;
+    border-top: 3px solid var(--stage);
+    padding: 10px 2px 0;
+  }
+  .adv li strong { display: block; font-size: 14px; margin-bottom: 2px; }
+  .adv li strong::before { content: counter(adv) ". "; color: var(--stage); }
+  .adv li span { color: var(--muted); font-size: 13px; }
+  .adv-title { grid-column: 1 / -1; margin: 0; }
+  .note {
+    margin: 0;
+    padding-top: 12px;
+    border-top: 1px solid var(--line);
+    color: var(--muted);
+    font-size: 12px;
+    max-width: 110ch;
+  }
+
+  @media (max-width: 900px) {
+    ol.timeline { grid-template-columns: repeat(2, 1fr); }
+    ol.timeline::before { display: none; }
+    .brief, .adv { grid-template-columns: 1fr; }
+    .brief div + div { border-left: 0; border-top: 1px solid var(--line); }
+  }
+  @media (max-width: 560px) {
+    ol.timeline { grid-template-columns: 1fr; }
+    .card { height: auto; }
+  }
+  @media print {
+    @page { size: A4 landscape; margin: 10mm; }
+    html, body { background: #fff; }
+    body { padding: 0; font-size: 11px; color: #14221e; }
+    :root { --paper:#fff; --surface:#fff; --ink:#14221e; --muted:#526560; --line:#cfdad6; --stage:#0f6e56; --stage-tint:#e3f2ed; --pain:#9a3f27; --pain-tint:#fbece7; }
+    h1 { font-size: 19px; }
+    .lede { margin-bottom: 10px; }
+    .brief { margin-bottom: 12px; }
+    .brief div { padding: 7px 10px; }
+    ol.timeline { margin-bottom: 12px; gap: 10px; grid-template-columns: repeat(4, 1fr); }
+    ol.timeline::before { display: block; }
+    .row { padding: 7px 9px 8px; }
+    .row p { font-size: 11px; }
+    .badge span { font-size: 14px; }
+    .adv { margin-bottom: 8px; }
+    .brief, .card, .adv li, ol.timeline > li { break-inside: avoid; }
+  }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+</style>
+</head>
+<body>
+<main>
+  <h1>Future state journey: proving the card's value to large merchants</h1>
+  <p class="lede">From skeptic to advocate in four stages. Riverty measures what the card changes at the merchant's checkout, so her answer to "show me what I get" comes from data.</p>
+
+  <dl class="brief">
+    <div>
+      <dt>Persona</dt>
+      <dd>Katrin, ecommerce lead at a large online retailer that offers Riverty at checkout and is being pitched on the new card.</dd>
+    </div>
+    <div>
+      <dt>Strategy</dt>
+      <dd>Riverty measures and shows the behavior change that proves the card improves the merchant's business.</dd>
+    </div>
+    <div>
+      <dt>Value proposition</dt>
+      <dd>Riverty builds stronger relationships with merchants and consumers by using its new banking license well.</dd>
+    </div>
+  </dl>
+
+  <ol class="timeline" aria-label="Four stage future state journey">
+    <li>
+      <div class="badge"><span>Connect</span></div>
+      <div class="card">
+        <div class="row"><h3>User action</h3><p>Links checkout to Riverty dashboard <span class="arr">→</span> replaces manual data exports.</p></div>
+        <div class="row state"><h3>Internal state</h3><p>Skeptical, asking "why you?" <span class="arr">→</span> needs proof before committing.</p></div>
+        <div class="row pain"><h3>Pain point addressed</h3><p>Manual exports and spreadsheets <span class="arr">→</span> one live view of Riverty results.</p></div>
+      </div>
+    </li>
+    <li>
+      <div class="badge"><span>Baseline</span></div>
+      <div class="card">
+        <div class="row"><h3>User action</h3><p>Sets goals and a holdout group <span class="arr">→</span> isolates the card's true effect.</p></div>
+        <div class="row state"><h3>Internal state</h3><p>Cautiously curious <span class="arr">→</span> willing to test with limited risk.</p></div>
+        <div class="row pain"><h3>Pain point addressed</h3><p>Cannot isolate card effect <span class="arr">→</span> credible before/after comparison.</p></div>
+      </div>
+    </li>
+    <li>
+      <div class="badge"><span>Prove</span></div>
+      <div class="card">
+        <div class="row"><h3>User action</h3><p>Reads uplift report <span class="arr">→</span> sees incremental sales, basket size, repeat purchases.</p></div>
+        <div class="row state"><h3>Internal state</h3><p>Convinced by her own data <span class="arr">→</span> can defend Riverty internally.</p></div>
+        <div class="row pain"><h3>Pain point addressed</h3><p>"Show me what I get" (N-08) <span class="arr">→</span> answered with evidence.</p></div>
+      </div>
+    </li>
+    <li>
+      <div class="badge"><span>Expand</span></div>
+      <div class="card">
+        <div class="row"><h3>User action</h3><p>Activates partner offers (B5) <span class="arr">→</span> gives cardholders a reason to choose her checkout.</p></div>
+        <div class="row state"><h3>Internal state</h3><p>Confident, owns the case <span class="arr">→</span> keeps Riverty prominent at checkout.</p></div>
+        <div class="row pain"><h3>Pain point addressed</h3><p>Card works anywhere, no reason to pick Riverty <span class="arr">→</span> offers drive loyalty.</p></div>
+      </div>
+    </li>
+  </ol>
+
+  <section class="adv" aria-labelledby="adv-h">
+    <h2 id="adv-h" class="adv-title">Three competitive advantages over the manual workaround</h2>
+    <ol>
+      <li><strong>Full-picture data</strong><span>Riverty sees card, pay later and partner spend. Katrin's own checkout data shows only her shop.</span></li>
+      <li><strong>Continuous, not one-off</strong><span>A live dashboard replaces her spreadsheet comparison, so proof stays current as behavior changes.</span></li>
+      <li><strong>Proof leads to action</strong><span>Measurement connects to partner offers (B5), so she can act on results, not only keep or drop Riverty.</span></li>
+    </ol>
+  </section>
+
+  <p class="note">Assumptions to validate: the unified card and pay later view depends on how the banking license lets Riverty combine and share this data, which needs legal and consent review. The Stage 2 holdout design is untested, and an employee-heavy pilot group (N-10) would skew early results. Sample data and fictional research references (N-08, N-10, B5) come from the practice data pack, not Riverty research.</p>
+</main>
+</body>
+</html>
